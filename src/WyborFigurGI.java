@@ -4,56 +4,76 @@ import java.awt.event.*;
 
 public class WyborFigurGI extends JFrame {
     //przyciski:
-    private JButton goniec = new JButton();
-    private JButton skoczek = new JButton();
-    private JButton wieza = new JButton();
-    private JButton hetman = new JButton();
-    private JButton krol = new JButton();
-    private JButton pionek = new JButton();
+    private JButton goniecButton = new JButton();
+    private JButton skoczekButton = new JButton();
+    private JButton wiezaButton = new JButton();
+    private JButton hetmanButton = new JButton();
+    private JButton krolButton = new JButton();
+    private JButton pionekButton = new JButton();
     //inne:
-    private JButton ButtonsTab[][];
-    private Szachownica szachownica;
+    private JButton buttonsTab[][];
     private int wiersz, kolumna;
-    private String nazwaPostawionejFig;
+    private Figura postawionaFig;
+    private Pat pat;
+    private Szachownica szachownica;
+    //Figury:
+    private static Krol krol = new Krol(Kolor.CZARNY);
+    private static Hetman hetman = new Hetman(Kolor.CZARNY);
+    private static Wieza wieza1 = new Wieza(Kolor.CZARNY);
+    private static Wieza wieza2 = new Wieza(Kolor.CZARNY);
+    private static Goniec goniec1 = new Goniec(Kolor.CZARNY);
+    private static Goniec goniec2 = new Goniec(Kolor.CZARNY);
+    private static Skoczek skoczek1 = new Skoczek(Kolor.CZARNY);
+    private static Skoczek skoczek2  = new Skoczek(Kolor.CZARNY);
 
-    public WyborFigurGI(JButton ButtonsTab[][], Szachownica szachownica, int wiersz, int kolumna, String nazwaPostawionejFig) {
-        this.ButtonsTab = ButtonsTab;
-        this.szachownica = szachownica;
+
+    public WyborFigurGI(JButton ButtonsTab[][], Szachownica szachownica, int wiersz, int kolumna, Figura postawionaFig, Pat pat) {
+        this.buttonsTab = ButtonsTab;
         this.wiersz = wiersz;
         this.kolumna = kolumna;
-        this.nazwaPostawionejFig = nazwaPostawionejFig;
+        this.postawionaFig = postawionaFig;
+        this.szachownica = szachownica;
+        this.pat = pat;
         setTitle("Wybor");
         setSize(200,500);
         setLocation(300,200);
         Container cp = getContentPane();
         cp.setLayout(new FlowLayout());
-        cp.add(pionek);
-        cp.add(goniec);
-        cp.add(skoczek);
-        cp.add(wieza);
-        cp.add(hetman);
-        cp.add(krol);
-        pionek.addActionListener(new KlikFigura("pionek", Stale.CZ_PIONEK, pionek));
-        goniec.addActionListener(new KlikFigura("goniec", Stale.CZ_GONIEC, goniec));
-        skoczek.addActionListener(new KlikFigura("skoczek", Stale.CZ_SKOCZEK, skoczek));
-        wieza.addActionListener(new KlikFigura("wieza", Stale.CZ_WIEZA, wieza));
-        hetman.addActionListener(new KlikFigura("hetman", Stale.CZ_HETMAN, hetman));
-        krol.addActionListener(new KlikFigura("krol", Stale.CZ_KROL, krol));
+        cp.add(pionekButton);
+        cp.add(goniecButton);
+        cp.add(skoczekButton);
+        cp.add(wiezaButton);
+        cp.add(hetmanButton);
+        cp.add(krolButton);
+        pionekButton.addActionListener(new KlikFigura(new Pionek(Kolor.CZARNY), null, Pionek.getDefaultIcon(), pionekButton));
+        goniecButton.addActionListener(new KlikFigura(goniec1, goniec2, Goniec.getDefaultIcon(), goniecButton));
+        skoczekButton.addActionListener(new KlikFigura(skoczek1, skoczek2, Skoczek.getDefaultIcon(), skoczekButton));
+        wiezaButton.addActionListener(new KlikFigura(wieza1, wieza2, Wieza.getDefaultIcon(), wiezaButton));
+        hetmanButton.addActionListener(new KlikFigura(hetman, null, Hetman.getDefaultIcon(), hetmanButton));
+        krolButton.addActionListener(new KlikFigura(krol, null, Krol.getDefaultIcon(), krolButton));
         setVisible(true);
     }
 
     class KlikFigura implements ActionListener {
-        String rodzajFigury;
+        Figura figura1;
+        Figura figura2;
         ImageIcon ikona;
 
-        public KlikFigura(String rodzajFigury, ImageIcon ikona, JButton przycisk) {
+        public KlikFigura(Figura figura1, Figura figura2, ImageIcon ikona, JButton przycisk) {
             przycisk.setIcon(ikona);
-            this.rodzajFigury = rodzajFigury;
+            this.figura1 = figura1;
+            this.figura2 = figura2;
             this.ikona = ikona;
         }
         public void actionPerformed(ActionEvent e) {
-            if(szachownica.postawFigure(wiersz, kolumna,'c', rodzajFigury, nazwaPostawionejFig) == 0)
-                ButtonsTab[wiersz][kolumna].setIcon(ikona);
+            if(figura1 != null && !(figura1.getFiguraPostawiona())) {
+                szachownica.zdejmijFigure(postawionaFig, buttonsTab);
+                szachownica.postawFigure(wiersz, kolumna, figura1, buttonsTab);
+            }
+            else if(figura2 != null && !(figura2.getFiguraPostawiona())) {
+                szachownica.zdejmijFigure(postawionaFig, buttonsTab);
+                szachownica.postawFigure(wiersz, kolumna, figura2, buttonsTab);
+            }
             dispose();
         }
     }

@@ -1,74 +1,53 @@
 import javax.swing.*;
+import java.io.Serializable;
 
-public class Szachownica {
-    private Figura tabFigur[][] = new Figura[8][8];
-    private int krolLimit = 1, hetmanLimit = 1, wiezaLimit = 2, goniecLimit = 2, skoczekLimit = 2;
-    private Boolean moznaPostawic;
+public class Szachownica implements Serializable {
+    private int pocz = Stale.POCZ_SZACHOWNICY;
+    private int wielk = Stale.WIELK_SZACHOWNICY;
+    private Figura tabFigur[][] = new Figura[wielk][wielk];
     private int ileAtakowanych = 0;
 
-    public int postawFigure(int wiersz, int kolumna, char kolor, String rodzajFigury, String rodzajPostawionejFig) {
-        moznaPostawic = false;
-        aktualizujLimity(rodzajFigury, -1);
-        if(moznaPostawic) {
-            tabFigur[wiersz][kolumna] = new Figura(kolor, rodzajFigury, wiersz, kolumna);
-            aktualizujLimity(rodzajPostawionejFig, 1);
-            tabFigur[wiersz][kolumna].aktualizujAtakowane(rodzajPostawionejFig, false);
-            tabFigur[wiersz][kolumna].aktualizujAtakowane(rodzajFigury, true);
-            return 0;
-        }
-        return 1;
-    }
-
-    public void postawFigure(int wiersz, int kolumna, char kolor, String rodzajFigury) {
-            tabFigur[wiersz][kolumna] = new Figura(kolor, rodzajFigury, wiersz, kolumna);
-    }
-
-    private void aktualizujLimity(String rodzajFigury, int zmianaLimitu) {
-        switch (rodzajFigury) {
-            case "krol":
-                if(krolLimit > 0 || zmianaLimitu == 1) {
-                    krolLimit+=zmianaLimitu;
-                    moznaPostawic = true;
-                }
-                break;
-            case "hetman":
-                if(hetmanLimit > 0 || zmianaLimitu == 1) {
-                    hetmanLimit+=zmianaLimitu;
-                    moznaPostawic = true;
-                }
-                break;
-            case "wieza":
-                if(wiezaLimit > 0 || zmianaLimitu == 1) {
-                    wiezaLimit+=zmianaLimitu;
-                    moznaPostawic = true;
-                }
-                break;
-            case "goniec":
-                if(goniecLimit > 0 || zmianaLimitu == 1) {
-                    goniecLimit+=zmianaLimitu;
-                    moznaPostawic = true;
-                }
-                break;
-            case "skoczek":
-                if(skoczekLimit > 0 || zmianaLimitu == 1) {
-                    skoczekLimit+=zmianaLimitu;
-                    moznaPostawic = true;
-                }
-                break;
-            case "pionek":
-                moznaPostawic = true;
-                break;
+    public void postawFigure(int wiersz, int kolumna, Figura figura, JButton buttonsTab[][]) {
+        tabFigur[wiersz][kolumna] = figura;
+        if(figura != null && buttonsTab != null) {
+            figura.setFiguraPostawiona(true, wiersz, kolumna);
+            buttonsTab[wiersz][kolumna].setIcon(figura.getIcon());
+            figura.atakuj(tabFigur, true);
         }
     }
 
-    public void ustawPionki(int ustawienie[][], JButton ButtonsTab[][]) {
-        for(int i = 0; i < 8; i++) {
-            postawFigure(ustawienie[i][0], ustawienie[i][1], 'c',"pionek");
-            ButtonsTab[ustawienie[i][0]][ustawienie[i][1]].setIcon(Stale.CZ_PIONEK);
-        }
+    public int sprawdzIleAtakowanych() {
+        ileAtakowanych = 0;
+        for(int i = pocz; i < wielk; i++)
+            for(int j = pocz; j < wielk; j++)
+                if(tabFigur[i][j].getPoleAtakowane()) ileAtakowanych++;
+        return ileAtakowanych;
     }
 
-    public Figura getPlanszaTabFig(int wiersz, int kolumna) {
+    public void postawPustePole(int wiersz, int kolumna) {
+        tabFigur[wiersz][kolumna] = new PustePole();
+        tabFigur[wiersz][kolumna].setFiguraPostawiona(false, wiersz, kolumna);
+    }
+
+    public void zdejmijFigure(Figura figura, JButton buttonsTab[][]) {
+        int wiersz = figura.getWiersz();
+        int kolumna = figura.getKolumna();
+        Boolean czyAtak;
+        czyAtak = figura.getPoleAtakowane();
+        tabFigur[wiersz][kolumna] = new PustePole();
+        tabFigur[wiersz][kolumna].setPoleAtakowane(czyAtak);
+        figura.setFiguraPostawiona(false);
+        buttonsTab[wiersz][kolumna].setIcon(null);
+        figura.atakuj(tabFigur, false);
+    }
+
+    public void atakWszystkie() {
+        for(int i = pocz; i < wielk; i++)
+            for(int j = pocz; j < wielk; j++)
+                if(tabFigur[i][j].getFiguraPostawiona()) tabFigur[i][j].atakuj(tabFigur, true);
+    }
+
+    public Figura getTabFig(int wiersz, int kolumna) {
         return tabFigur[wiersz][kolumna];
     }
 }

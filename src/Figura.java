@@ -1,101 +1,55 @@
-public class Figura {
-    private char kolorFigury;
-    private String rodzajFigury;
+import javax.swing.*;
+
+abstract public class Figura {
+    private Kolor kolor;
+    private Boolean poleAtakowane = false;
+    private Boolean figuraPostawiona = false;
     private int wiersz;
     private int kolumna;
-    private Boolean poleAtakowane = false;
-    private static int POCZ_SZACHOWNICY = 0;
-    private static int KON_SZACHOWNICY = 7;
-    private int i, j;
+    private int wielk = Stale.WIELK_SZACHOWNICY;
+    private int pocz = Stale.POCZ_SZACHOWNICY;
 
-    public Figura(char kolorFigury, String rodzajFigury, int wiersz, int kolumna) {
-        this.kolorFigury = kolorFigury;
-        this.rodzajFigury = rodzajFigury;
-        this.wiersz = wiersz;
-        this.kolumna = kolumna;
-    }
-
-    public void aktualizujAtakowane(String rodzajFigury, Boolean dodawanieAtakowanych) {
-        switch (rodzajFigury) {
-            case "krol":
-
-                break;
-            case "hetman":
-                setPoleAtakowane(dodawanieAtakowanych);
-                for(i = 1; i <= 7; i++) {
-                    if(wiersz + i >= 0 && wiersz + i <= 7 && kolumna + i >= 0 && kolumna + i <= 7)
-                        setPoleAtakowane(dodawanieAtakowanych);
-                    if(wiersz - i >= 0 && wiersz - i <= 7 && kolumna - i >= 0 && kolumna - i <= 7)
-                        setPoleAtakowane(dodawanieAtakowanych);
-                    if(wiersz + i >= 0 && wiersz + i <= 7 && kolumna - i >= 0 && kolumna - i <= 7)
-                        setPoleAtakowane(dodawanieAtakowanych);
-                    if(wiersz - i >= 0 && wiersz - i <= 7 && kolumna + i >= 0 && kolumna + i <= 7)
-                        setPoleAtakowane(dodawanieAtakowanych);
-                }
-                for(i = -7; i <= 7; i++) {
-                    if(wiersz + i >= 0 && wiersz + i <= 7)
-                        setPoleAtakowane(dodawanieAtakowanych);
-                    if(kolumna + i >= 0 && kolumna + i <= 7)
-                        setPoleAtakowane(dodawanieAtakowanych);
-                }
-                break;
-            case "wieza":
-                for(i = -7; i <= 7; i++) {
-                    if(wiersz + i >= 0 && wiersz + i <= 7)
-                        setPoleAtakowane(dodawanieAtakowanych);
-                    if(kolumna + i >= 0 && kolumna + i <= 7)
-                        setPoleAtakowane(dodawanieAtakowanych);
-                }
-                break;
-            case "goniec":
-                setPoleAtakowane(dodawanieAtakowanych);
-                for(i = 1; i <= 7; i++) {
-                    if(wiersz + i >= 0 && wiersz + i <= 7 && kolumna + i >= 0 && kolumna + i <= 7)
-                        setPoleAtakowane(dodawanieAtakowanych);
-                    if(wiersz - i >= 0 && wiersz - i <= 7 && kolumna - i >= 0 && kolumna - i <= 7)
-                        setPoleAtakowane(dodawanieAtakowanych);
-                    if(wiersz + i >= 0 && wiersz + i <= 7 && kolumna - i >= 0 && kolumna - i <= 7)
-                        setPoleAtakowane(dodawanieAtakowanych);
-                    if(wiersz - i >= 0 && wiersz - i <= 7 && kolumna + i >= 0 && kolumna + i <= 7)
-                        setPoleAtakowane(dodawanieAtakowanych);
-                }
-                break;
-            case "skoczek":
-                setPoleAtakowane(dodawanieAtakowanych);
-                for(i = -2; i <= 2; i += 4) {
-                    for(j = -1; j <= 1; j += 2) {
-                        setPoleAtakowane(dodawanieAtakowanych);
-                    }
-                }
-                setPoleAtakowane(dodawanieAtakowanych);
-                setPoleAtakowane(dodawanieAtakowanych);
-                setPoleAtakowane(dodawanieAtakowanych);
-                setPoleAtakowane(dodawanieAtakowanych);
-                setPoleAtakowane(dodawanieAtakowanych);
-
-                break;
-        }
-    }
-
-    private void atakKrol(Boolean dodawanieAtakowanych) {
-        for(i = -1; i <= 1; i++)
-            for(j = -1; j <= 1; j++)
-                if(wiersz + i >= POCZ_SZACHOWNICY && wiersz + i <= KON_SZACHOWNICY &&
-                        kolumna + j >= POCZ_SZACHOWNICY && kolumna + j <= KON_SZACHOWNICY)
-                    setPoleAtakowane(dodawanieAtakowanych);
+    public Figura(Kolor kolor, Boolean poleAtakowane) {
+        this.kolor = kolor;
+        this.poleAtakowane = poleAtakowane;
     }
 
     public void setPoleAtakowane(Boolean war) {
         poleAtakowane = war;
     }
 
-    public char getKolorFigury() {
-        return kolorFigury;
+    public void setFiguraPostawiona(Boolean war) { figuraPostawiona = war; }
+
+    public void setFiguraPostawiona(Boolean war, int wiersz, int kolumna) {
+        figuraPostawiona = war;
+        this.wiersz = wiersz;
+        this.kolumna = kolumna;
     }
 
-    public String getRodzajFigury() { return rodzajFigury; }
+    public Boolean getPoleAtakowane() { return poleAtakowane; }
+
+    public Boolean getFiguraPostawiona() { return figuraPostawiona; }
+
+    public Kolor getKolor() {
+        return kolor;
+    }
 
     public int getWiersz() { return wiersz; }
 
     public int getKolumna() { return kolumna; }
+
+    abstract public ImageIcon getIcon();
+
+    abstract public void atakuj(Figura tabFigur[][], Boolean czyAtak);
+
+    public void atak(int znak1, int znak2, Figura tabFigur[][], Boolean czyAtak) {
+        Figura figura;
+        for(int i = pocz+1; i < wielk; i++) {
+            if(wiersz+i*znak1 >= pocz && kolumna+i*znak2 >= pocz && wiersz+i*znak1 < wielk && kolumna+i*znak2 < wielk) {
+                figura = tabFigur[wiersz+i*znak1][kolumna+i*znak2];
+                if(figura.getFiguraPostawiona() && !(figura instanceof BKrol)) break;
+                figura.setPoleAtakowane(czyAtak);
+            }
+        }
+    }
 }
