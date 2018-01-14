@@ -1,3 +1,5 @@
+//Autor: Michał Sławiński 246803 gr.5
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -24,6 +26,7 @@ public class SzachownicaGI extends JFrame {
     private BKrol bKrol = new BKrol();
     private int wiel = Stale.WIELK_SZACHOWNICY;
     private static int nrZagadki = 1;
+    private Historia historia = new Historia();
 
     public SzachownicaGI() {
         setTitle("Pat");
@@ -61,6 +64,7 @@ public class SzachownicaGI extends JFrame {
         szachownica = new Szachownica();
         pat = new Pat(szachownica, buttonsTab);
         pat.inicjalizujSzachownice(Stale.USTAWIENIE1);
+        status.setText("Zagadka nr 1");
     }
 
     private void inicjalizujPrzyciski() {
@@ -86,7 +90,7 @@ public class SzachownicaGI extends JFrame {
         public void actionPerformed(ActionEvent e) {
             Figura postawionaFig = szachownica.getTabFig(wiersz, kolumna);
             if (postawionaFig.getFiguraPostawiona() && !(postawionaFig instanceof BKrol))
-                new WyborFigurGI(buttonsTab, szachownica, wiersz, kolumna, postawionaFig, pat);
+                new WyborFigurGI(buttonsTab, szachownica, wiersz, kolumna, postawionaFig, pat, historia);
             else {
                 if(bKrol.getFiguraPostawiona()) szachownica.zdejmijFigure(bKrol, buttonsTab);
                 bKrol.setPoleAtakowane(false);
@@ -110,22 +114,48 @@ public class SzachownicaGI extends JFrame {
             wyczyscPrzyciski();
             nrZagadki++;
             if(nrZagadki > 3) nrZagadki = 1;
-            if(nrZagadki == 1) pat.inicjalizujSzachownice(Stale.USTAWIENIE1);
-            if(nrZagadki == 2) pat.inicjalizujSzachownice(Stale.USTAWIENIE2);
-            if(nrZagadki == 3) pat.inicjalizujSzachownice(Stale.USTAWIENIE3);
-            status.setText("");
+            if(nrZagadki == 1) {
+                pat.inicjalizujSzachownice(Stale.USTAWIENIE1);
+                status.setText("Zagadka nr 1");
+            }
+            if(nrZagadki == 2) {
+                pat.inicjalizujSzachownice(Stale.USTAWIENIE2);
+                status.setText("Zagadka nr 2");
+            }
+            if(nrZagadki == 3) {
+                pat.inicjalizujSzachownice(Stale.USTAWIENIE3);
+                status.setText("Zagadka nr 3");
+            }
         }
     }
 
     class Cofnij implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
+        private Ruch poprzRuch;
 
+        public void actionPerformed(ActionEvent e) {
+            if(historia.getBiezInd() > 0) {
+                poprzRuch = historia.getRuch(historia.getBiezInd()-1);
+                szachownica.zdejmijFigure(poprzRuch.getWiersz(), poprzRuch.getKolumna(), buttonsTab);
+                szachownica.postawFigure(poprzRuch.getWiersz(), poprzRuch.getKolumna(),
+                        poprzRuch.getZdjetaFigura(), buttonsTab);
+                historia.setBiezInd(historia.getBiezInd()-1);
+                status.setText("Cofnieto");
+            } else status.setText("Nie mozna cofnac");
         }
     }
 
     class Dalej implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
+        private Ruch nastRuch;
 
+        public void actionPerformed(ActionEvent e) {
+            if(historia.getBiezInd() < historia.getHistoriaSize()) {
+                nastRuch = historia.getRuch(historia.getBiezInd());
+                szachownica.zdejmijFigure(nastRuch.getWiersz(), nastRuch.getKolumna(), buttonsTab);
+                szachownica.postawFigure(nastRuch.getWiersz(), nastRuch.getKolumna(),
+                        nastRuch.getPostawionaFigura(), buttonsTab);
+                historia.setBiezInd(historia.getBiezInd()+1);
+                status.setText("Przywrocono");
+            } else status.setText("Nie mozna przywrocic");
         }
     }
 
@@ -137,7 +167,7 @@ public class SzachownicaGI extends JFrame {
                 os.writeObject(szachownica);
                 fOut.close();
                 status.setText("Zapisano");
-            } catch (IOException ex){}
+            } catch (IOException ex){status.setText("IOException");}
         }
     }
 
@@ -147,9 +177,14 @@ public class SzachownicaGI extends JFrame {
                 ObjectInputStream is = new ObjectInputStream(new FileInputStream("SzachownicaZapis"));
                 szachownica = (Szachownica)is.readObject();
                 is.close();
+                szachownica.aktualizujSzachownice(buttonsTab);
+                WyborFigurGI wyborFigur = new WyborFigurGI(szachownica);
+                wyborFigur.aktualizujFigury();
                 status.setText("Wczytano");
             } catch (IOException ex){
-            }catch (ClassNotFoundException nfe){}
+                status.setText("IOException");
+                ex.printStackTrace();
+            }catch (ClassNotFoundException nfe){status.setText("ClassNotFoundException");}
         }
     }
 

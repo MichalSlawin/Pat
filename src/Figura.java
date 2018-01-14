@@ -1,6 +1,7 @@
 import javax.swing.*;
+import java.io.Serializable;
 
-abstract public class Figura {
+abstract public class Figura implements Serializable {
     private Kolor kolor;
     private Boolean poleAtakowane = false;
     private Boolean figuraPostawiona = false;

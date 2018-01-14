@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 
 public class WyborFigurGI extends JFrame {
     //przyciski:
@@ -16,6 +17,7 @@ public class WyborFigurGI extends JFrame {
     private Figura postawionaFig;
     private Pat pat;
     private Szachownica szachownica;
+    private Historia historia;
     //Figury:
     private static Krol krol = new Krol(Kolor.CZARNY);
     private static Hetman hetman = new Hetman(Kolor.CZARNY);
@@ -27,13 +29,15 @@ public class WyborFigurGI extends JFrame {
     private static Skoczek skoczek2  = new Skoczek(Kolor.CZARNY);
 
 
-    public WyborFigurGI(JButton ButtonsTab[][], Szachownica szachownica, int wiersz, int kolumna, Figura postawionaFig, Pat pat) {
+    public WyborFigurGI(JButton ButtonsTab[][], Szachownica szachownica, int wiersz, int kolumna, Figura postawionaFig,
+                        Pat pat, Historia historia) {
         this.buttonsTab = ButtonsTab;
         this.wiersz = wiersz;
         this.kolumna = kolumna;
         this.postawionaFig = postawionaFig;
         this.szachownica = szachownica;
         this.pat = pat;
+        this.historia = historia;
         setTitle("Wybor");
         setSize(200,500);
         setLocation(300,200);
@@ -54,6 +58,18 @@ public class WyborFigurGI extends JFrame {
         setVisible(true);
     }
 
+    public WyborFigurGI(Szachownica szachownica) {
+        this.szachownica = szachownica;
+    }
+
+    public void aktualizujFigury() {
+        szachownica.aktualizujFigury(Krol.class, buttonsTab, krol);
+        szachownica.aktualizujFigury(Hetman.class, buttonsTab, hetman);
+        szachownica.aktualizujFigury(Wieza.class, buttonsTab, wieza1, wieza2);
+        szachownica.aktualizujFigury(Goniec.class, buttonsTab, goniec1, goniec2);
+        szachownica.aktualizujFigury(Skoczek.class, buttonsTab, skoczek1, skoczek2);
+    }
+
     class KlikFigura implements ActionListener {
         Figura figura1;
         Figura figura2;
@@ -69,10 +85,16 @@ public class WyborFigurGI extends JFrame {
             if(figura1 != null && !(figura1.getFiguraPostawiona())) {
                 szachownica.zdejmijFigure(postawionaFig, buttonsTab);
                 szachownica.postawFigure(wiersz, kolumna, figura1, buttonsTab);
+                historia.subHistoria(0, historia.getBiezInd());
+                historia.dodajRuch(new Ruch(postawionaFig, figura1, wiersz, kolumna));
+                historia.setBiezInd(historia.getHistoriaSize());
             }
             else if(figura2 != null && !(figura2.getFiguraPostawiona())) {
                 szachownica.zdejmijFigure(postawionaFig, buttonsTab);
                 szachownica.postawFigure(wiersz, kolumna, figura2, buttonsTab);
+                historia.subHistoria(0, historia.getBiezInd());
+                historia.dodajRuch(new Ruch(postawionaFig, figura2, wiersz, kolumna));
+                historia.setBiezInd(historia.getHistoriaSize());
             }
             dispose();
         }
