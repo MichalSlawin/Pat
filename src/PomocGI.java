@@ -7,7 +7,7 @@ public class PomocGI extends JFrame {
     public PomocGI() {
         setTitle("Pomoc");
         Container cp = getContentPane();
-        cp.setLayout(new FlowLayout()) ;
+        cp.setLayout(new FlowLayout());
         pomocText.setFont(new Font("Arial", Font.PLAIN, 22));
         pomocText.setText("W lamiglowce Pat zadaniem gracza jest postawienie czarnych figur na miejscu\n"+
         "czarnych pionkow w taki sposob, aby atakowane byly wszystkie pola szachownicy oprocz jednego.\n"+
@@ -21,6 +21,6 @@ public class PomocGI extends JFrame {
         cp.add(pomocText);
         setSize(1000,500) ;
         setLocation(500,200);
-        setVisible(true) ;
+        setVisible(true);
     }
 }
